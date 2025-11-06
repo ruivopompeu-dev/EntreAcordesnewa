@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entre Acordes News - Universo da Música</title>
+    <!-- Carrega o Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuração de fonte e cores personalizadas -->
+    <style>
+        /*
+        Paleta de Impacto (Inspirada em Almapreta - Alto Contraste)
+        Fundo/Principal: #1a1a1a (Quase Preto / Fundo de Tinta)
+        Texto Geral: #f0f0f0 (Off-White)
+        Destaque (Accent/CG Red): #ed3f27 (Vermelho/Coral - Ação)
+        Destaque Secundário (Mustard): #feb21a (Amarelo - Alerta/Highlight)
+        */
+        
+        /* Define a fonte do corpo (Sans-serif simples) e o fundo escuro */
+        body {
+            font-family: 'Inter', sans-serif; /* Fonte moderna e limpa */
+            background-color: #1a1a1a; 
+            color: #f0f0f0; /* Cor do texto padrão para o fundo escuro */
+        }
+        /* Fonte dos Títulos (Bolder, mais impactante) */
+        .header-font {
+            font-family: 'Arial Black', Arial, sans-serif; 
+            letter-spacing: -1px; /* Espaçamento mais apertado para força */
+        }
+        /* Cor de Destaque principal (Vermelho) */
+        .text-accent {
+            color: #ed3f27;
+        }
+        .bg-accent {
+             background-color: #ed3f27;
+        }
+        /* Cor Principal para Header e Footer (Quase Preto) */
+        .bg-primary-dark {
+            background-color: #1a1a1a; 
+        }
+        /* Cor Secundária para detalhes (Amarelo) */
+        .text-secondary-yellow {
+            color: #feb21a;
+        }
+        .bg-secondary-yellow {
+             background-color: #feb21a;
+        }
+
+        /* Estilo para o loader de IA */
+        .loader {
+            border-top-color: #ed3f27;
+            border-left-color: #ed3f27;
+            border-bottom-color: #feb21a;
+            border-right-color: #feb21a;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Estilos do Carrossel */
+        .carousel-item {
+            /* Garante que os itens ocupem toda a largura do contêiner e não causem CLS */
+            flex: 0 0 100%; 
+            transition: transform 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Cabeçalho e Navegação (Header and Navigation) - Fundo Escuro com Borda Impactante -->
+    <header class="bg-primary-dark shadow-xl sticky top-0 z-10 border-b-4 border-accent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center">
+            <!-- Título do Jornal/Logo em CAPS com Destaques Amarelo e Vermelho -->
+            <h1 class="header-font text-3xl font-extrabold text-white mb-3 md:mb-0 uppercase">
+                <span class="text-accent">ENTRE</span> <span class="text-secondary-yellow">ACORDES</span> NEWS
+            </h1>
+            
+            <!-- Navegação Principal -->
+            <nav class="flex space-x-2 sm:space-x-4 text-center">
+                <!-- Botões com texto em amarelo/vermelho para alto contraste -->
+                <button onclick="updateContent('home')" class="nav-button text-white hover:text-secondary-yellow transition duration-150 py-2 px-3 rounded-lg font-bold uppercase active-page">Início</button>
+                <button onclick="updateContent('noticias')" class="nav-button text-white hover:text-secondary-yellow transition duration-150 py-2 px-3 rounded-lg font-bold uppercase">Notícias</button>
+                <button onclick="updateContent('local')" class="nav-button text-white hover:text-secondary-yellow transition duration-150 py-2 px-3 rounded-lg font-bold uppercase">Cena Local</button>
+                <button onclick="updateContent('terapia')" class="nav-button text-white hover:text-secondary-yellow transition duration-150 py-2 px-3 rounded-lg font-bold uppercase">Educação</button>
+                <button onclick="updateContent('contato')" class="nav-button text-white hover:text-secondary-yellow transition duration-150 py-2 px-3 rounded-lg font-bold uppercase">Contato</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Área de Conteúdo Principal -->
+    <!-- Usamos 'text-gray-900' e 'bg-white' dentro dos componentes para contraste, mas o fundo do body é escuro -->
+    <main id="content-area" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"></main>
+
+    <!-- Rodapé (Footer) - Fundo Escuro com Destaque Amarelo -->
+    <footer class="bg-primary-dark text-white mt-auto border-t-4 border-secondary-yellow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm">
+            <p>&copy; 2025 Entre Acordes News. Todos os direitos reservados. | Desenvolvido com <span class="text-accent">Gemini</span>.</p>
+        </div>
+    </footer>
+
+    <!-- Script de Configuração da API do Gemini e Lógica da Aplicação -->
+    <script>
+        const API_KEY = ""; 
+        const API_URL_GEMINI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+        
+        let currentCarouselIndex = 0; 
+
+        /**
+         * Realiza a chamada à API do Gemini com retries (backoff exponencial).
+         */
+        async function callGemini(payload, maxRetries = 3) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(API_URL_GEMINI, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 || response.status >= 500) {
+                            throw new Error(`HTTP Error: ${response.status}`);
+                        }
+                        const errorBody = await response.json();
+                        throw new Error(`API Error: ${response.status} - ${JSON.stringify(errorBody)}`);
+                    }
+
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    
+                    if (text) {
+                        return text;
+                    } else {
+                        throw new Error("Resposta do Gemini vazia ou inválida.");
+                    }
+                } catch (error) {
+                    console.error(`Tentativa ${i + 1} falhou:`, error);
+                    if (i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw new Error("Falha na chamada ao Gemini API após todas as tentativas.");
+                    }
+                }
+            }
+        }
+
+        // Dados de Notícias Mockados
+        const articles = [
+            // DESTAQUE 1 (MÚSICA GERAL)
+            { id: 1, title: "LANÇAMENTO DA SEMANA: NOVO ÁLBUM 'VIBRAÇÕES URBANAS' ELOGIADO PELA CRÍTICA", category: "Notícias Musicais", summary: "O aguardado álbum da banda indie brasileira domina as paradas e é aclamado por sua fusão de ritmos. Analisamos faixa a faixa.", fullText: "No cenário musical em constante evolução, a banda 'Ondas Sonoras' surpreendeu o público e a crítica com o lançamento de seu quarto álbum de estúdio, 'Vibrações Urbanas'. O disco, que mistura elementos de pop, rock progressivo e ritmos afro-brasileiros, foi descrito por especialistas como 'um marco de criatividade e ousadia'. A faixa principal, 'Eco da Cidade', já acumula milhões de streams, impulsionando a banda ao topo das paradas nacionais. O vocalista, Leo Faria, disse em entrevista que o álbum é uma 'carta de amor às metrópoles, com todos os seus ruídos e melodias ocultas'.", date: "05/11/2025", imageUrl: "https://placehold.co/800x400/ed3f27/fff?text=ÁLBUM+DESTAQUE+(POP/ROCK)" }, 
+            // DESTAQUE 2 (CENA LOCAL)
+            { id: 2, title: "AGENDA DA CASA DO RITMO: EVENTOS E OFICINAS GRATUITAS PARA NOVEMBRO", category: "Cena Local", summary: "Confira a programação completa do ponto de cultura mais vibrante de Sorocaba, incluindo shows de artistas regionais e aulas de percussão.", fullText: "A Casa do Ritmo, reconhecida como um polo cultural vital em Sorocaba, divulgou sua agenda de novembro recheada de atividades. O destaque fica para o 'Festival Acordes de Outono', que trará 15 bandas locais, abrangendo do jazz ao metal. Além disso, as oficinas gratuitas de 'Percussão para Iniciantes' e 'Harmonia Popular' estão com inscrições abertas. A administração do espaço reforça que a iniciativa visa democratizar o acesso à arte e oferecer uma plataforma para o talento sorocabano. A oficina de percussão, em particular, é muito procurada e exige inscrição prévia via website.", date: "04/11/2025", imageUrl: "https://placehold.co/800x400/feb21a/000?text=CENA+LOCAL+SOROCABA" }, 
+            // DESTAQUE 3 (EDUCAÇÃO E TERAPIA)
+            { id: 3, title: "O PODER CURATIVO DO SOM: COMO A MUSICOTERAPIA AUXILIA IDOSOS COM DEMÊNCIA", category: "Educação & Terapia", summary: "Um estudo recente mostra os benefícios da música para estimular a memória e a qualidade de vida em pacientes com doenças neurodegenerativas.", fullText: "Pesquisadores da Universidade Federal de São Paulo (UNIFESP) publicaram resultados promissores sobre o uso da musicoterapia no tratamento de idosos com demência e Alzheimer. O estudo acompanhou 50 pacientes e observou melhorias significativas na comunicação, redução da ansiedade e recuperação parcial de memórias através de canções de sua juventude. A terapeuta responsável pelo projeto, Dra. Lúcia Mendes, explica que a música ativa áreas do cérebro menos afetadas pela doença, servindo como uma 'ponte emocional' para o passado. A técnica é não invasiva e está sendo integrada em diversos centros geriátricos do país.", date: "03/11/2025", imageUrl: "https://placehold.co/800x400/1a1a1a/fff?text=MUSICOTERAPIA" }, 
+            // ARTIGO SECUNDÁRIO 4
+            { id: 4, title: "TECNOLOGIA E MÚSICA: A ASCENSÃO DA INTELIGÊNCIA ARTIFICIAL NA COMPOSIÇÃO", category: "Notícias Musicais", summary: "Ferramentas de IA estão transformando a produção musical. Artistas e produtores discutem os limites da criatividade algorítmica.", fullText: "A tecnologia de Inteligência Artificial não é mais uma novidade, mas seu papel na composição musical está se intensificando. Programas de IA são capazes de gerar melodias, harmonias e até arranjos completos com base em estilos predefinidos. Embora a ferramenta seja vista como um auxílio poderoso para a fase de 'bloqueio criativo', levanta-se o debate sobre a originalidade e a 'alma' da música. O produtor Renato Lima, conhecido por trabalhar com grandes nomes do MPB, defende que a IA deve ser uma 'colaboradora', mas nunca uma substituta da emoção humana inerente à arte.", date: "02/11/2025", imageUrl: "https://placehold.co/400x200/ed3f27/fff?text=IA+NA+MÚSICA" }, 
+            // ARTIGO SECUNDÁRIO 5
+            { id: 5, title: "NADA YOGA: A PRÁTICA DA MEDITAÇÃO PELO SOM INTERNO GANHA FORÇA NO BRASIL", category: "Educação & Terapia", summary: "Exploramos a filosofia milenar que usa a vibração sonora como caminho para o autoconhecimento e relaxamento profundo.", fullText: "O Nada Yoga, também conhecido como 'Yoga do Som', é uma disciplina que utiliza as vibrações sonoras e a escuta profunda para atingir estados meditativos. Diferente da Musicoterapia, que usa a música externa, o Nada Yoga foca no 'Anahata Nada', o som interno não-tocado. Praticantes relatam maior foco, redução do estresse e uma conexão mais profunda com o próprio corpo. A expansão dessa prática no Brasil reflete uma busca crescente por métodos alternativos de bem-estar e controle da ansiedade no mundo moderno.", date: "01/11/2025", imageUrl: "https://placehold.co/400x200/feb21a/000?text=NADA+YOGA" },
+            // ARTIGO SECUNDÁRIO 6
+             { id: 6, title: "ENTREVISTA EXCLUSIVA COM A REVELAÇÃO DO SAMBA SOROCABANO: 'RAIZ FORTE'", category: "Cena Local", summary: "O grupo 'Raiz Forte' fala sobre a importância de manter as tradições do samba vivo na região e seus planos para o próximo festival.", fullText: "O samba de Sorocaba tem um novo nome de peso: 'Raiz Forte'. O grupo, formado há três anos, acaba de lançar seu primeiro EP e já conquistou o público local com suas letras que celebram a cultura e a história da cidade. Em entrevista exclusiva ao Entre Acordes News, o pandeirista e vocalista, João da Silva, destacou os desafios de ser um artista independente no interior de São Paulo e a emoção de se apresentar no Festival de Inverno. Eles prometem um show inédito na próxima semana com participações especiais de nomes tradicionais do gênero.", date: "31/10/2025", imageUrl: "https://placehold.co/400x200/1a1a1a/fff?text=SAMBA+SOROCABA" },
+        ];
+
+        const carouselArticles = articles.slice(0, 3);
+        const secondaryArticles = articles.slice(3); 
+
+        // ------------------------------------
+        // LÓGICA DO CARROSSEL
+        // ------------------------------------
+        function moveCarousel(direction) {
+            const totalItems = carouselArticles.length;
+            currentCarouselIndex = (currentCarouselIndex + direction + totalItems) % totalItems;
+            updateCarouselView();
+        }
+
+        function updateCarouselView() {
+            const carouselContainer = document.getElementById('carousel-container');
+            if (carouselContainer) {
+                // Calcula o quanto o container deve se deslocar (em %)
+                const offset = -currentCarouselIndex * 100;
+                carouselContainer.style.transform = `translateX(${offset}%)`;
+
+                // Atualiza os indicadores (pontos)
+                const indicators = document.querySelectorAll('.carousel-indicator');
+                indicators.forEach((indicator, index) => {
+                    if (index === currentCarouselIndex) {
+                        indicator.classList.remove('bg-gray-400', 'hover:bg-gray-500');
+                        // Indicador ativo em amarelo vibrante
+                        indicator.classList.add('bg-secondary-yellow'); 
+                    } else {
+                        indicator.classList.remove('bg-secondary-yellow');
+                        // Indicador inativo em vermelho sutil contra o fundo escuro
+                        indicator.classList.add('bg-accent', 'opacity-50', 'hover:opacity-100'); 
+                    }
+                });
+            }
+        }
+        
+        // ------------------------------------
+        // FUNÇÕES DE RENDERIZAÇÃO DE PÁGINAS
+        // ------------------------------------
+        
+        // Renderiza o componente de um card de notícia secundária
+        function renderNewsCard(article) {
+            // Card agora usa fundo branco para POP contra o fundo preto
+            const icon = `<span class="text-accent mr-1 font-extrabold">&#9679;</span>`; // Ponto de impacto
+            
+            return `
+                <div class="bg-white rounded-lg shadow-xl overflow-hidden transform hover:scale-[1.03] transition duration-300 border-b-4 border-secondary-yellow">
+                    <img src="${article.imageUrl.replace('800x400', '400x200')}" alt="Imagem da notícia: ${article.title}" class="w-full h-48 object-cover object-center" onerror="this.onerror=null;this.src='https://placehold.co/400x200/1a1a1a/fff?text=NOTÍCIA';" />
+                    <div class="p-5">
+                        <p class="text-sm font-black uppercase text-accent mb-1">${icon} ${article.category}</p>
+                        <h3 class="header-font text-xl font-bold text-gray-900 mb-2 leading-snug">${article.title}</h3>
+                        <p class="text-gray-600 text-sm">${article.summary}</p>
+                        <!-- Botão de Alto Contraste -->
+                        <button onclick="renderArticle(${article.id})" class="mt-3 inline-block text-sm font-black text-secondary-yellow hover:text-accent transition duration-150 border-b-2 border-secondary-yellow hover:border-accent uppercase">
+                            LEIA AGORA &rarr;
+                        </button>
+                        <p class="text-xs text-gray-400 mt-2">Publicado em: ${article.date}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Renderiza o carrossel de destaques
+        function renderCarousel() {
+            // Cria os itens do carrossel
+            const carouselItems = carouselArticles.map((article, index) => `
+                <div class="carousel-item relative p-6 bg-white rounded-lg shadow-2xl border-l-8 border-accent text-gray-900">
+                    <!-- Conteúdo do Destaque -->
+                    <h2 class="header-font text-4xl font-extrabold uppercase mb-4 leading-tight text-primary-dark">
+                        ${article.title}
+                    </h2>
+                    <img src="${article.imageUrl}" alt="Imagem do banner principal" class="w-full h-64 object-cover object-center rounded-lg mb-4 border-2 border-secondary-yellow" onerror="this.onerror=null;this.src='https://placehold.co/800x400/ed3f27/fff?text=DESTAQUE+PRINCIPAL+MÚSICA';" />
+                    <p class="text-lg text-gray-700 mb-4 leading-relaxed">${article.summary}</p>
+                    <span class="inline-block bg-primary-dark text-secondary-yellow text-xs font-black px-4 py-1 rounded-full uppercase border-2 border-secondary-yellow">
+                        DESTAQUE ${index + 1} | ${article.category}
+                    </span>
+                    <!-- Chamada para o artigo completo com resumo IA em cor de Ação -->
+                    <button onclick="renderArticle(${article.id})" class="ml-4 font-black text-accent hover:underline transition duration-150 uppercase">
+                        LER REPORTAGEM COMPLETA &rarr;
+                    </button>
+                </div>
+            `).join('');
+
+            // Estrutura completa do carrossel
+            return `
+                <div class="relative overflow-hidden mb-8">
+                    <!-- Contêiner de Itens (Move-se horizontalmente) -->
+                    <div id="carousel-container" class="flex" style="transform: translateX(0%);">
+                        ${carouselItems}
+                    </div>
+
+                    <!-- Botão Anterior (Design de Alto Contraste) -->
+                    <button onclick="moveCarousel(-1)" class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-accent text-primary-dark font-black p-3 rounded-r-lg ml-0 hover:bg-secondary-yellow transition duration-300 z-10 shadow-lg">
+                        <span class="header-font">&lt;</span>
+                    </button>
+
+                    <!-- Botão Próximo (Design de Alto Contraste) -->
+                    <button onclick="moveCarousel(1)" class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-accent text-primary-dark font-black p-3 rounded-l-lg mr-0 hover:bg-secondary-yellow transition duration-300 z-10 shadow-lg">
+                        <span class="header-font">&gt;</span>
+                    </button>
+
+                    <!-- Indicadores de Posição (Dots) -->
+                    <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-10">
+                        ${carouselArticles.map((_, index) => `
+                            <button onclick="currentCarouselIndex = ${index}; updateCarouselView();" 
+                                class="carousel-indicator w-4 h-4 rounded-full border-2 border-white transition duration-300 ${index === 0 ? 'bg-secondary-yellow' : 'bg-accent opacity-50 hover:opacity-100'}" 
+                                aria-label="Ir para destaque ${index + 1}">
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * NOVO: Gera um resumo do artigo usando a Gemini API.
+         */
+        async function generateSummary(id) {
+            const article = articles.find(a => a.id === id);
+            if (!article) return;
+
+            const summaryContentDiv = document.getElementById('summary-content');
+            const summarizeBtn = document.getElementById('summarize-btn');
+            
+            // Desabilita o botão e Exibe o loader
+            summarizeBtn.disabled = true;
+            summaryContentDiv.innerHTML = `
+                <div class="flex items-center space-x-3 text-white">
+                    <div class="loader ease-linear rounded-full border-4 h-6 w-6"></div>
+                    <p>IA EM AÇÃO: Gerando resumo conciso...</p>
+                </div>
+            `;
+
+            const userPrompt = `Baseado neste artigo: "${article.fullText}", gere um resumo conciso e envolvente para um jornal musical. O resumo deve ter no máximo 30 palavras e focar nas descobertas mais interessantes para o leitor.`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: {
+                    parts: [{ text: "Você é um assistente de redação para um jornal musical de alto impacto visual. Sua tarefa é criar resumos curtos, diretos e com tom profissional e envolvente." }]
+                },
+            };
+
+            try {
+                const summaryText = await callGemini(payload);
+                summarizeBtn.style.display = 'none'; // Esconde o botão após gerar
+                summaryContentDiv.innerHTML = `<p class="font-bold text-xl leading-snug">${summaryText}</p>`;
+            } catch (error) {
+                console.error("Erro ao gerar resumo:", error);
+                summaryContentDiv.innerHTML = `<p class="text-red-300">ERRO 🚨: Não foi possível gerar o resumo. Tente novamente mais tarde.</p>`;
+            }
+        }
+
+        // Renderiza a página do Artigo com Resumo IA
+        function renderArticle(id) {
+            const article = articles.find(a => a.id === id);
+            if (!article) return showMessage('Artigo não encontrado.');
+
+            const contentArea = document.getElementById('content-area');
+            // Artigo usa fundo branco para leitura fácil contra o body escuro
+            contentArea.innerHTML = `
+                <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-2xl border-t-8 border-accent text-gray-900">
+                    <button onclick="updateContent('home')" class="text-secondary-yellow hover:text-accent font-black mb-4 flex items-center uppercase transition duration-150">
+                        &larr; VOLTAR PARA INÍCIO
+                    </button>
+                    <h1 class="header-font text-4xl font-extrabold uppercase text-gray-900 mb-3 leading-snug">${article.title}</h1>
+                    <p class="text-sm text-gray-500 mb-6 border-b pb-2">PUBLICADO EM: ${article.date} | CATEGORIA: <span class="text-accent font-black">${article.category}</span></p>
+                    
+                    <img src="${article.imageUrl.replace('800x400', '1000x500')}" alt="Imagem do artigo" class="w-full h-80 object-cover object-center rounded-lg mb-8 border-2 border-secondary-yellow" onerror="this.onerror=null;this.src='https://placehold.co/1000x500/1a1a1a/fff?text=REPORTAGEM+IMPACTO';" />
+
+                    <!-- Área para o Resumo IA - Bloco de Contraste Amarelo/Vermelho -->
+                    <div id="summary-section" class="bg-primary-dark text-white p-6 rounded-lg mb-8 border-l-4 border-secondary-yellow">
+                        <h3 class="header-font text-2xl text-accent font-bold mb-3 uppercase">PONTO-CHAVE: RESUMO IA ⚡</h3>
+                        <div id="summary-content">
+                            <p class="mb-4 text-gray-300">Quer ir direto ao ponto? Clique para que nossa IA gere um resumo ultraconciso do artigo.</p>
+                            <button id="summarize-btn" onclick="generateSummary(${id})" class="mt-2 bg-secondary-yellow text-primary-dark font-black py-2 px-4 rounded-full hover:bg-accent hover:text-white transition duration-300 shadow-md uppercase">
+                                GERAR RESUMO CURTO
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo Completo do Artigo -->
+                    <div class="text-gray-700 leading-relaxed text-lg">
+                        <p>${article.fullText}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * NOVO: Gerador de Ideias de Reportagem (Sidebar)
+         */
+        async function generateReportIdeas() {
+            const ideasList = document.getElementById('report-ideas-list');
+            const ideaButton = document.getElementById('generate-ideas-btn');
+            
+            // Desabilita o botão e exibe o loader
+            ideaButton.disabled = true;
+            ideaButton.innerHTML = `
+                <div class="flex items-center justify-center space-x-2">
+                    <div class="loader ease-linear rounded-full border-2 h-4 w-4"></div>
+                    <span class="uppercase">GERANDO...</span>
+                </div>
+            `;
+            
+            const userPrompt = `Sugira 5 ideias de pautas de reportagem de jornalismo musical para as seguintes categorias: Notícias Musicais (geral), Cena Local (foco em Sorocaba) e Educação & Terapia (música). Formate a resposta como uma lista numerada.`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: {
+                    parts: [{ text: "Você é um editor-chefe de um jornal musical brasileiro com foco em impacto. Seu tom é criativo, jornalístico e urgente. Gere 5 sugestões de títulos/pautas prontas para publicação." }]
+                },
+            };
+
+            try {
+                const ideasText = await callGemini(payload);
+                const listItems = ideasText.split('\n').map(line => {
+                    const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
+                    if (cleanLine) return `<li class="mb-2 text-primary-dark font-semibold">&#9834; ${cleanLine}</li>`;
+                    return '';
+                }).join('');
+                
+                ideasList.innerHTML = `<ul class="list-none space-y-2">${listItems}</ul>`;
+            } catch (error) {
+                console.error("Erro ao gerar ideias:", error);
+                ideasList.innerHTML = `<p class="text-accent">ERRO: Não foi possível gerar novas pautas.</p>`;
+            } finally {
+                 ideaButton.disabled = false;
+                 ideaButton.innerHTML = `GERAR 5 NOVAS PAUTAS 💥`;
+            }
+        }
+
+        // Renderiza a Página Inicial (DESTAQUES)
+        function renderHome() {
+            const listArticles = articles.slice(3, 6); 
+            
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Coluna Principal (CARROSSEL DE DESTAQUES) - 2/3 da tela em desktop -->
+                    <div class="lg:col-span-2">
+                        
+                        <!-- Novo Carrossel de Notícias -->
+                        ${renderCarousel()}
+                        
+                        <!-- Últimos Acordes (Grid de Artigos Secundários) -->
+                        <h3 class="header-font text-2xl font-black text-white mb-4 border-b-4 border-accent pb-2 uppercase">OUTRAS NOTÍCIAS</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            ${listArticles.map(renderNewsCard).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Coluna Lateral (Sidebar) - 1/3 da tela em desktop -->
+                    <aside class="lg:col-span-1">
+                        <!-- Gerador de Ideias de Pauta por IA (Fundo Branco para destaque) -->
+                        <div class="bg-white rounded-lg shadow-xl p-6 mb-6 border-t-4 border-secondary-yellow text-gray-900">
+                            <h3 class="header-font text-xl font-black text-primary-dark mb-4 border-b pb-2 uppercase">PLANNER IA ⚡</h3>
+                            <div id="report-ideas-list" class="mb-4 text-sm text-gray-600">
+                                <p class="text-gray-700">Gere 5 ideias frescas de pautas para as próximas edições com um clique.</p>
+                            </div>
+                            <button id="generate-ideas-btn" onclick="generateReportIdeas()" class="w-full bg-accent text-white font-black py-2 rounded-lg hover:bg-secondary-yellow hover:text-primary-dark transition duration-300 shadow-md uppercase">
+                                GERAR 5 NOVAS PAUTAS 💥
+                            </button>
+                        </div>
+                        
+                        <!-- Top 3 -->
+                        <div class="bg-primary-dark rounded-lg shadow-xl p-6 mb-6 border-t-4 border-accent text-white">
+                            <h3 class="header-font text-xl font-black text-secondary-yellow mb-4 border-b border-accent pb-2 uppercase">LEITURAS QUENTES</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="hover:text-secondary-yellow cursor-pointer transition">&#9658; Análise do novo clipe de Anitta (Notícias Musicais)</li>
+                                <li class="hover:text-secondary-yellow cursor-pointer transition">&#9658; Melhores estúdios de gravação em Sorocaba (Cena Local)</li>
+                                <li class="hover:text-secondary-yellow cursor-pointer transition">&#9658; O uso da música para combater a insônia (Educação & Terapia)</li>
+                            </ul>
+                        </div>
+
+                        <!-- Podcast Banner -->
+                        <div class="bg-secondary-yellow rounded-lg shadow-xl p-6 text-center border-4 border-accent text-primary-dark">
+                            <p class="text-primary-dark font-black mb-2 header-font text-lg uppercase">NÃO PERCA O PODCAST!</p>
+                            <p class="text-sm font-semibold">Bastidores e entrevistas exclusivas sobre a música de Sorocaba.</p>
+                            <img src="https://placehold.co/300x150/1a1a1a/feb21a?text=OUÇA+AGORA" alt="Anúncio" class="mt-4 mx-auto rounded-lg border-2 border-primary-dark"/>
+                        </div>
+                    </aside>
+                </div>
+            `;
+        }
+
+        // Renderiza a página de Categoria
+        function renderCategory(category) {
+            const filteredArticles = articles.filter(a => a.category.toLowerCase().includes(category.toLowerCase()));
+            let categoryName = '';
+
+            switch(category) {
+                case 'noticias':
+                    categoryName = 'NOTÍCIAS MUSICAIS (GERAL)';
+                    break;
+                case 'local':
+                    categoryName = 'CENA LOCAL (SOROCABA E REGIÃO)';
+                    break;
+                case 'terapia':
+                    categoryName = 'EDUCAÇÃO MUSICAL & TERAPIAS DO SOM';
+                    break;
+                default:
+                    categoryName = category;
+            }
+
+            return `
+                <h2 class="header-font text-3xl font-black text-white mb-6 border-b-4 border-secondary-yellow pb-2 uppercase">${categoryName}</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    ${filteredArticles.length > 0 ? 
+                        filteredArticles.map(renderNewsCard).join('') : 
+                        `<p class="col-span-3 text-lg text-secondary-yellow font-bold">NENHUMA NOTÍCIA ENCONTRADA NESTA SEÇÃO.</p>`
+                    }
+                </div>
+            `;
+        }
+
+        // Renderiza a página de Contato
+        function renderContact() {
+            return `
+                <!-- Fundo Branco para o formulário, para leitura e contraste -->
+                <div class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-2xl border-t-8 border-accent text-gray-900">
+                    <h2 class="header-font text-3xl font-black text-primary-dark mb-6 border-b pb-2 uppercase">FALE CONOSCO ✉️</h2>
+                    
+                    <form onsubmit="event.preventDefault(); showMessage('MENSAGEM ENVIADA! OBRIGADO PELO CONTATO.');">
+                        <div class="mb-4">
+                            <label for="name" class="block text-primary-dark font-bold mb-2 uppercase">Seu Nome</label>
+                            <input type="text" id="name" required class="w-full p-3 border-2 border-primary-dark rounded-lg focus:ring-secondary-yellow focus:border-secondary-yellow transition duration-150">
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="block text-primary-dark font-bold mb-2 uppercase">Seu Email</label>
+                            <input type="email" id="email" required class="w-full p-3 border-2 border-primary-dark rounded-lg focus:ring-secondary-yellow focus:border-secondary-yellow transition duration-150">
+                        </div>
+                        <div class="mb-6">
+                            <label for="message" class="block text-primary-dark font-bold mb-2 uppercase">Mensagem</label>
+                            <textarea id="message" rows="5" required class="w-full p-3 border-2 border-primary-dark rounded-lg focus:ring-secondary-yellow focus:border-secondary-yellow transition duration-150"></textarea>
+                        </div>
+                        <!-- Botão de Ação Vermelho -->
+                        <button type="submit" class="w-full bg-accent text-white font-black py-3 rounded-lg hover:bg-secondary-yellow hover:text-primary-dark transition duration-300 shadow-md uppercase">
+                            ENVIAR MENSAGEM AGORA
+                        </button>
+                    </form>
+                    
+                    <div class="mt-8 pt-4 border-t text-sm text-center text-gray-600">
+                        <p>E-mail: contato@entrecordesnews.com</p>
+                        <p>Telefone: 15 99677-4704</p>
+                    </div>
+                    
+                    <!-- Lista da Equipe Editorial em Bloco de Destaque -->
+                    <div class="mt-8 p-4 bg-primary-dark text-white rounded-lg text-left border-l-4 border-accent">
+                        <h3 class="font-black text-secondary-yellow mb-2 header-font border-b border-accent pb-1 uppercase">EQUIPE DE REDAÇÃO:</h3>
+                        <ul class="list-disc list-inside space-y-1 pl-4 text-sm">
+                            <li>Sophia Ruivo Pompeu</li>
+                            <li>Raíssa Rosendo Mio</li>
+                            <li>Cauê Pereira</li>
+                            <li>Rayane Azevedo</li>
+                            <li>Richard Gabriel</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Função para exibir mensagem no lugar de alert()
+        function showMessage(msg) {
+            const contentArea = document.getElementById('content-area');
+            // Notificação de Alto Contraste
+            contentArea.innerHTML = `
+                <div class="max-w-md mx-auto p-6 bg-secondary-yellow border-4 border-accent text-primary-dark rounded-lg shadow-2xl text-center">
+                    <p class="font-black text-xl mb-2 header-font uppercase">ALERTA DE SISTEMA 📢</p>
+                    <p class="font-bold">${msg}</p>
+                    <button onclick="updateContent('home')" class="mt-4 bg-accent text-white py-2 px-4 rounded-lg hover:opacity-90 transition duration-150 shadow-md font-black uppercase">VOLTAR AO IMPACTO</button>
+                </div>
+            `;
+        }
+
+        // Função principal para carregar o conteúdo na área principal
+        function updateContent(page) {
+            const contentArea = document.getElementById('content-area');
+            const navButtons = document.querySelectorAll('.nav-button');
+
+            // Remove a classe de ativo de todos os botões de navegação
+            navButtons.forEach(button => {
+                button.classList.remove('active-page', 'text-secondary-yellow', 'bg-accent');
+                button.classList.add('text-white', 'hover:text-secondary-yellow');
+                if(button.getAttribute('onclick').includes(`'${page}'`)) {
+                    // Botão ativo recebe a cor Amarelo Secundário no texto
+                    button.classList.remove('text-white', 'hover:text-secondary-yellow');
+                    button.classList.add('text-secondary-yellow', 'active-page'); 
+                }
+            });
+
+            switch (page) {
+                case 'home':
+                    contentArea.innerHTML = renderHome();
+                    setTimeout(updateCarouselView, 0); 
+                    break;
+                case 'noticias':
+                    contentArea.innerHTML = renderCategory('noticias');
+                    break;
+                case 'local':
+                    contentArea.innerHTML = renderCategory('local');
+                    break;
+                case 'terapia':
+                    contentArea.innerHTML = renderCategory('terapia');
+                    break;
+                case 'contato':
+                    contentArea.innerHTML = renderContact();
+                    break;
+                default:
+                    contentArea.innerHTML = renderHome();
+                    setTimeout(updateCarouselView, 0); 
+            }
+            window.scrollTo(0, 0); 
+        }
+
+        // Inicializa a página carregando o conteúdo principal ao carregar o DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            updateContent('home');
+        });
+    </script>
+</body>
+</html>
