@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Entre Acordes News - Universo da Música</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Montserrat ~ Century Gothic, Roboto Mono ~ Courier New -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /*
+        Paleta de Impacto:
+        Fundo: #1a1a1a
+        Texto: #f0f0f0
+        Accent: #ed3f27
+        Secondary Yellow: #feb21a
+        */
+
+        /* Corpo: preferência por Courier New, fallback para Roboto Mono (hospedada) */
+        body {
+            font-family: 'Courier New', 'Roboto Mono', Courier, monospace;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+
+        /* Títulos: Century Gothic quando disponível, fallback para Montserrat (Google Fonts) */
+        .header-font {
+            font-family: 'Century Gothic', 'Montserrat', 'Arial Black', Arial, sans-serif;
+            letter-spacing: -1px;
+        }
+
+        .text-accent { color: #ed3f27; }
+        .bg-accent { background-color: #ed3f27; }
+
+        .bg-primary-dark { background-color: #1a1a1a; }
+
+        .text-secondary-yellow { color: #feb21a; }
+        .bg-secondary-yellow { background-color: #feb21a; }
+
+        /* Loader */
+        .loader {
+            border-top-color: #ed3f27;
+            border-left-color: #ed3f27;
+            border-bottom-color: #feb21a;
+            border-right-color: #feb21a;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Carrossel */
+        .carousel-item {
+            flex: 0 0 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* Força a família mono em blocos
