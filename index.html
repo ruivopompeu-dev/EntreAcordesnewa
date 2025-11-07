@@ -576,12 +576,18 @@
                     setTimeout(updateCarouselView, 0); 
             }
             window.scrollTo(0, 0); 
-        }
-
+        
+<nav class="flex space-x-4">
+    <a href="index.html" class="text-white hover:text-accent header-font font-bold">Início</a>
+    <a href="podcast.html" class="text-white hover:text-accent header-font font-bold">Podcast</a>
+    <a href="videos.html" class="text-white hover:text-accent header-font font-bold">Vídeos</a>
+</nav>
         // Inicializa a página carregando o conteúdo principal ao carregar o DOM
         document.addEventListener('DOMContentLoaded', () => {
             updateContent('home');
+        }
         });
     </script>
 </body>
+
 </html>
