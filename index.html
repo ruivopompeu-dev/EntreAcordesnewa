@@ -4,79 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Entre Acordes News - Universo da Música e Notícias</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-
     <style>
-        /*
-        Paleta de Impacto:
-        Fundo: #1a1a1a
-        Texto: #f0f0f0
-        Accent: #ed3f27 (Vermelho)
-        Secondary Yellow: #feb21a (Amarelo)
-        */
-
-        /* Corpo: preferência por Courier New, fallback para Roboto Mono (hospedada) */
-        body {
-            font-family: 'Courier New', 'Roboto Mono', Courier, monospace;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-            line-height: 1.6;
-        }
-
-        /* Títulos: Century Gothic quando disponível, fallback para Montserrat (Google Fonts) */
-        .header-font {
-            font-family: 'Century Gothic', 'Montserrat', 'Arial Black', Arial, sans-serif;
-            letter-spacing: -1px;
-        }
-
+        /* (CÓDIGO CSS COMPLETO AQUI) */
+        body { font-family: 'Courier New', 'Roboto Mono', Courier, monospace; background-color: #1a1a1a; color: #f0f0f0; line-height: 1.6; }
+        .header-font { font-family: 'Century Gothic', 'Montserrat', 'Arial Black', Arial, sans-serif; letter-spacing: -1px; }
         .text-accent { color: #ed3f27; }
         .bg-accent { background-color: #ed3f27; }
-
         .text-secondary-yellow { color: #feb21a; }
         .bg-secondary-yellow { background-color: #feb21a; }
-
-        /* Citação Destaque */
-        .denuncia-quote {
-            border-left: 5px solid #feb21a; /* Borda Amarela */
-            padding-left: 20px;
-            margin: 30px 0;
-            font-style: italic;
-            font-size: 1.25rem; /* text-xl */
-            color: #ccc;
-        }
-        
-        /* Animação de Fade-in on Scroll */
-        .fade-in-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-            will-change: opacity, transform;
-        }
-
-        .fade-in-on-scroll.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Layout Grid para a Home */
-        .home-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr; /* Notícias + Sidebar */
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .home-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        .fade-in-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; will-change: opacity, transform; }
+        .fade-in-on-scroll.visible { opacity: 1; transform: translateY(0); }
+        .home-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-top: 30px; }
+        @media (max-width: 768px) { .home-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body class="bg-[#1a1a1a]">
@@ -84,17 +27,13 @@
     <header class="bg-gray-900 border-b-4 border-accent shadow-lg sticky top-0 z-10">
         <div class="container mx-auto p-4 flex justify-between items-center">
             <a href="index.html" class="flex items-center space-x-2">
-                <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white header-font text-xl font-bold">
-                    <i class="fas fa-compact-disc"></i>
-                </div>
+                <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white header-font text-xl font-bold"><i class="fas fa-compact-disc"></i></div>
                 <div class="header-font text-3xl font-extrabold text-white">Entre Acordes News</div>
             </a>
-            
             <nav class="flex space-x-4">
                 <a href="index.html" class="text-accent border-b-2 border-accent header-font font-bold">Início</a>
                 <a href="podcast.html" class="text-white hover:text-accent header-font font-bold">Podcast</a>
                 <a href="videos.html" class="text-white hover:text-accent header-font font-bold">Vídeos</a>
-                <a href="#noticia-mobilidade" class="text-white hover:text-secondary-yellow header-font font-bold hidden md:block">Denúncia</a>
             </nav>
         </div>
     </header>
@@ -109,129 +48,70 @@
             
             <section>
                 
-                <article class="bg-gray-900 p-6 mb-8 rounded-lg shadow-xl border-l-8 border-accent fade-in-on-scroll">
-                    <p class="text-secondary-yellow font-bold uppercase text-sm mb-2">Destaque de Fotojornalismo</p>
-                    <a href="#noticia-mobilidade" class="block">
-                        <h2 class="header-font text-4xl text-white hover:text-accent font-extrabold mb-3 leading-tight">
+                <a href="noticia-mobilidade.html" class="block">
+                    <article class="bg-gray-900 p-6 mb-8 rounded-lg shadow-xl border-l-8 border-accent hover:bg-gray-800 transition duration-300 fade-in-on-scroll">
+                        <p class="text-secondary-yellow font-bold uppercase text-sm mb-2">Destaque de Fotojornalismo</p>
+                        <h2 class="header-font text-4xl text-white font-extrabold mb-3 leading-tight">
                             Estudantes denunciam negligência urbana em ensaio fotográfico sobre mobilidade
                         </h2>
                         <p class="text-gray-400 mb-4 italic">
                             Ensaio fotográfico realizado por alunos da UNISO retrata, com sensibilidade e crítica, os traços de abandono nas ruas e a luta diária por deslocamento digno.
                         </p>
-                    </a>
-                    <a href="#noticia-mobilidade" class="text-accent font-bold hover:text-secondary-yellow">Leia a matéria completa &raquo;</a>
-                </article>
-
+                        <p class="text-accent font-bold hover:text-secondary-yellow">
+                             Leia a matéria completa &raquo;
+                        </p>
+                    </article>
+                </a>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-gray-800 p-4 rounded-lg border-t-4 border-secondary-yellow fade-in-on-scroll" style="transition-delay: 0.2s;">
                         <h3 class="text-xl header-font text-white mb-2">Entrevista: Lançamento de Álbum com Flauta Nativa</h3>
                         <p class="text-gray-400 text-sm">O artista Kawi fala sobre a conexão entre som e ancestralidade.</p>
                         <a href="#" class="text-accent text-sm font-bold mt-2 block">Ver entrevista</a>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-lg border-t-4 border-secondary-yellow fade-in-on-scroll" style="transition-delay: 0.3s;">
-                        <h3 class="text-xl header-font text-white mb-2">Tecnologia: O Retorno do Vinil ao Topo das Vendas</h3>
-                        <p class="text-gray-400 text-sm">Análise do mercado e por que a qualidade analógica atrai.</p>
-                        <a href="#" class="text-accent text-sm font-bold mt-2 block">Leia mais</a>
                     </div>
-                </div>
 
             </section>
 
             <aside>
-                
                 <div class="bg-gray-900 p-6 rounded-lg shadow-xl mb-8 border-b-4 border-secondary-yellow fade-in-on-scroll">
                     <i class="fas fa-podcast text-accent text-4xl mb-3"></i>
                     <h3 class="header-font text-2xl text-white mb-2">🎙️ O Som que Cura</h3>
-                    <p class="text-gray-400 mb-4">
-                        Com Lucas: Nāda Yoga e a Flauta Nativo Americana. Aprenda a meditar com o som.
-                    </p>
-                    <a href="#" class="bg-secondary-yellow text-gray-900 py-2 px-6 rounded-full font-bold uppercase text-sm block text-center hover:bg-white transition duration-200">
-                        <i class="fas fa-play mr-2"></i> Ouvir Último Episódio
+                    <p class="text-gray-400 mb-4">Com Lucas: Nāda Yoga e a Flauta Nativo Americana.</p>
+                    <a href="podcast.html" class="bg-secondary-yellow text-gray-900 py-2 px-6 rounded-full font-bold uppercase text-sm block text-center hover:bg-white transition duration-200">
+                        <i class="fas fa-play mr-2"></i> Ouvir
                     </a>
                 </div>
 
                 <div class="w-full h-64 bg-red-700 flex items-center justify-center text-white text-lg font-bold fade-in-on-scroll" style="transition-delay: 0.4s;">
                     PUBLICIDADE 300X300 PX
                 </div>
-
             </aside>
         </div>
-        
-        <hr class="border-gray-700 my-10 fade-in-on-scroll">
+    </main>
 
+    <footer class="bg-gray-900 text-gray-500 py-8 mt-10 text-center">
+        <div class="container mx-auto">
+            <p>&copy; 2025 Entre Acordes News. Todos os direitos reservados.</p>
+        </div>
+    </footer>
 
-        <section id="noticia-mobilidade" class="bg-[#1a1a1a] pt-10">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // (CÓDIGO JS COMPLETO AQUI)
+            const observerOptions = { root: null, rootMargin: "0px", threshold: 0.1 };
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target); 
+                    } 
+                });
+            }, observerOptions);
 
-            <header class="max-w-4xl mx-auto text-center py-10">
-                <h1 class="header-font text-5xl md:text-6xl text-accent font-black mb-4 leading-tight">
-                    Estudantes Denunciam Negligência Urbana em Ensaio Fotográfico sobre Mobilidade
-                </h1>
-                <p class="text-xl text-gray-400 italic">
-                    Ensaio fotográfico realizado por alunos da UNISO retrata, com sensibilidade e crítica, os traços de abandono nas ruas e a luta diária por deslocamento digno.
-                </p>
-                <p class="mt-4 text-secondary-yellow font-bold text-lg">
-                    Por Sophia Ruivo | Fotojornalismo, Sorocaba
-                </p>
-            </header>
-
-            <figure class="mb-10">
-                <div class="w-full h-96 bg-gray-800 flex items-center justify-center">
-                    <span class="text-2xl text-gray-500 header-font">[ÁREA DA IMAGEM PRINCIPAL]</span>
-                </div>
-                <figcaption class="text-sm text-gray-500 mt-2 text-center">
-                    O descaso se revela pelas lentes atentas de 30 estudantes. (Crédito: UNISO/Acervo Pessoal)
-                </figcaption>
-            </figure>
-
-            <section class="max-w-5xl mx-auto columns-1 md:columns-2 gap-10 text-lg">
-                
-                <p class="mb-6 first-letter:text-5xl first-letter:text-accent first-letter:font-extrabold">
-                    O descaso se revela pelas lentes atentas de 30 estudantes, que registraram, cada um ao seu modo, os desafios e dores que a mobilidade urbana da Região Metropolitana de Sorocaba proporciona. A proposta de observação dos problemas, por vezes tão cotidianos, foi realizada para a disciplina de Fotojornalismo do terceiro e quarto semestres.
-                </p>
-
-                <p class="mb-6">
-                    Os estudantes produziram uma coletânea de 10 a 20 imagens, com temas focados no deslocamento de pedestres e motoristas, nas malhas viárias e nas vias públicas. As narrativas visuais propostas na coletânea carregam o significado de mobilidade sob o olhar de cada estudante.
-                </p>
-                
-                <div class="denuncia-quote">
-                    <p>“No interior do ônibus, passageiros se dividem entre o cansaço, a pressa e as distrações da rotina. Cada um espera o seu destino final de um jeito”</p>
-                    <cite class="text-base text-gray-500 block mt-2">— Ana Carolina Figueiredo (Arquivo pessoal)</cite>
-                </div>
-                
-                <p class="mb-6">
-                    Entre os temas abordados, o **transporte público se destacou**: as imagens traduzem o sofrimento coletivo de um sistema sobrecarregado, que, mesmo sendo parte da rotina exaustiva, revela um retrato silencioso e contundente da negligência. Contrastando com essa tensão, alguns registros revelam a calma dos finais de semana.
-                </p>
-                
-                <p class="mb-6">
-                    Entre o concreto e o abandono, a lente encontra aqueles que dormem onde ninguém sonha, e transforma silêncio em memória. A temática da mobilidade escancara a presença das pessoas invisíveis, enquanto muitos se esforçam para não enxergá-las.
-                </p>
-
-                <div class="denuncia-quote">
-                    <p>“Vivemos um sonho ou pesadelo” <br> “o sono do esquecido”</p>
-                    <cite class="text-base text-gray-500 block mt-2">— Alexandre Gonçalves e Caio Santucci (Arquivos pessoais)</cite>
-                </div>
-                
-                <p class="mb-6">
-                    A professora responsável, **Mônica Ribeiro**, ressalta justamente essa atenção às realidades mais invisibilizadas: "Destaco o olhar sobre os pedestres, em geral, e, principalmente, sobre os deficientes, e a forma como precisam enfrentar calçadas ruins e outros problemas para se locomover pela cidade.”
-                </p>
-                
-                <div class="bg-gray-900 p-6 rounded-lg my-6 border-l-4 border-secondary-yellow">
-                    <h3 class="text-2xl text-accent header-font mb-2">Um Gesto de Amor e Denúncia</h3>
-                    <p class="text-gray-300 italic">
-                        A estudante **Rayane Azevedo** emocionou-se ao ligar a denúncia à sua própria mãe: “Este trabalho, no fim, virou também um gesto de amor, de denúncia e de apelo. Não é só sobre o caminho dos pedestres - é sobre quem caminha com dignidade mesmo quando a cidade nega o básico.”
-                    </p>
-                </div>
-
-                <p class="mb-6">
-                    Com técnicas de composição fotográfica e linguagem jornalística, cada trabalho se ergue como denúncia, direta, poética ou artística. Porque, **às vezes, a cidade se revela mais nas rachaduras do que nos monumentos.**
-                </p>
-
-            </section>
-            
-            <section class="max-w-5xl mx-auto mt-12 pt-6 border-t border-gray-700">
-                <h2 class="header-font text-3xl text-secondary-yellow mb-6">📸 Galeria e Créditos</h2>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-gray-700 h-32 flex items-center justify-center text-sm text-center p-2 rounded">Crédito 1</div>
-                    <div class="bg-gray-700 h-32 flex items-center justify-center text-sm text-center p-2 rounded">Crédito 2</div>
-                    <div class="bg-gray
+            document.querySelectorAll('.fade-in-on-scroll').forEach(element => {
+                observer.observe(element);
+            });
+        });
+    </script>
+</body>
+</html>
